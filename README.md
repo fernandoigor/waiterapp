@@ -1,2 +1,16 @@
-# waiterapp
-Waiter App API, Web e Mobile;  NodeJs, Express, React, React Native and TypeScript
+### Waiter App
+
+#### API
+ - Express (Basic)
+ - MongoDB
+
+#### Frontend
+ - React
+ - TypeScript
+ - Styled-components
+
+#### Mobile
+ - React Native
+ - TypeScript
+ - Tailwindcss
+ 
