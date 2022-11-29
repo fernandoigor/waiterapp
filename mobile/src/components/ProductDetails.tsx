@@ -10,6 +10,8 @@ import colors from "tailwindcss/colors";
 
 import { formatCurrency } from "../utils/formatCurrency";
 
+import { ProductInterface } from "./Products";
+
 export interface ProductDetailsInterface {
     _id: string;
     name: string;
@@ -22,15 +24,23 @@ export interface ProductDetailsInterface {
         _id: string;
     }[];
 }
-interface ProductInterface{
-    product: ProductDetailsInterface;
-    onClose: void;
+interface ProductDetailsProps{
+    product: ProductDetailsInterface | null;
+    tableSelected: string;
+    onClose: () => void;
+    addProductCart: (product: ProductInterface) => void;
 }
 
 
 
-export function ProductDetails({ product, onClose }: ProductInterface) {
+export function ProductDetails({ product, tableSelected, onClose, addProductCart }: ProductDetailsProps) {
   const fontEscale = Dimensions.get("window").height < 700 ;
+
+
+  function handleAddProductCart(){
+    product && addProductCart(product);
+    onClose();
+  }
 
 
   return (
@@ -77,7 +87,12 @@ export function ProductDetails({ product, onClose }: ProductInterface) {
           <Text className="text-gray-800">Preço</Text>
           <Text className="font-bold text-gray-800 text-xl">{formatCurrency(product.price)}</Text>
         </View>
-        <Button className="mr-4 w-48" value="Adicionar ao pedido" onPress={()=>{console.log("Adicionar ao pedido");}}/>
+        <Button
+          className={`mr-4 w-48 ${tableSelected==="" && "bg-gray-300"}`}
+          value="Adicionar ao pedido"
+          onPress={handleAddProductCart}
+          disabled={tableSelected===""}
+        />
       </View>
     </View>
   );

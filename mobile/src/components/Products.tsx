@@ -9,6 +9,22 @@ import colors from "tailwindcss/colors";
 
 import { formatCurrency } from "../utils/formatCurrency";
 import { ProductDetails, ProductDetailsInterface } from "../components/ProductDetails";
+import { ProductCartInterface } from "./Cart";
+
+interface ProductsInterface {
+  tableSelected: string;
+  setTableModalVisible: () => void;
+  cart: ProductCartInterface[] | null;
+  handleSetCart: (el:ProductCartInterface[]) => void;
+}
+export interface ProductInterface {
+    _id: string;
+    name: string;
+    description: string;
+    imagePath: string;
+    price: number;
+    ingredients: any[];
+}
 
 const products = [
   {
@@ -142,27 +158,38 @@ const products = [
 ];
 
 
-export function Products() {
-  const [selectedProduct, setSelectedProduct] = useState("");
+export function Products({ tableSelected, setTableModalVisible, cart, handleSetCart }: ProductsInterface) {
   const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [productDetailed, setProductDetailed] = useState<ProductDetailsInterface | null>(null);
 
   function showDescriptionModalProduct(productId: ProductDetailsInterface){
-    // const product = selectedProduct === productId ? "" : productId;
-    // setSelectedProduct(product);
-    console.log("show modal");
     setProductDetailed(productId);
     setDescriptionModalVisible(true);
   }
   function closeDescriptionModalProduct(){
-    console.log("close modal");
     setDescriptionModalVisible(false);
+  }
+
+  function handleAddProductCart(product:ProductInterface){
+    const {_id, name, imagePath, price} = product;
+    if(cart && cart.length > 0){
+      const productAdded = cart.find(product => product._id === _id);
+      if(productAdded){
+        productAdded.quantity++;
+      }else{
+        cart.push({_id, name, imagePath, price, quantity:1});
+      }
+    }else{
+      cart.push({_id, name, imagePath, price, quantity:1});
+    }
+
+    handleSetCart([...cart]);
   }
 
 
 
   return (
-    <View className="mb-4 w-full flex-1">
+    <View className="mb-2 w-full flex-1">
       <Modal
         animationType="fade"
         transparent={false}
@@ -174,7 +201,9 @@ export function Products() {
         <View className="flex-1 items-center justify-center w-full bg-black/90">
           <ProductDetails
             product={productDetailed}
-            onClose={closeDescriptionModalProduct} />
+            onClose={closeDescriptionModalProduct}
+            addProductCart={handleAddProductCart}
+            tableSelected={tableSelected}/>
         </View>
       </Modal>
       <FlatList
@@ -200,8 +229,14 @@ export function Products() {
                   <Text className=" text-gray-800">{product.description}</Text>
                   <View className={"flex-row justify-between items-end"}>
                     <Text className="font-bold text-primary">{formatCurrency(product.price)}</Text>
-                    <TouchableOpacity className={"-top-2 text-red"}>
-                      <AntDesign name="pluscircleo" size={36} color="#D73035"  />
+                    <TouchableOpacity
+                      className={"-top-2 text-red"}
+                      onPress={()=>{
+                        tableSelected === "" ? setTableModalVisible() : handleAddProductCart(product);
+                      }}
+                      disabled={tableSelected === ""}
+                    >
+                      <AntDesign name="pluscircleo" size={36} color={tableSelected === "" ? colors.gray[300] : "#D73035"}  />
                     </TouchableOpacity>
                   </View>
                 </View>
