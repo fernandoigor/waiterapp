@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, Image, TouchableOpacity, Alert, Platform } from "react-native";
 
 import Separator from "../components/Separator";
 
@@ -29,6 +29,9 @@ export interface ProductCartInterface{
 
 
 export function Cart( { cart, handleSetCart, confirmOrder }: CartInterface) {
+  const isAndroid = Platform.OS === "android";
+
+  const [openList, setOpenList] = useState(false);
 
   const total = cart ? cart.reduce((acc, {price, quantity}) => acc + (price * quantity) ,0) : 0;
 
@@ -72,50 +75,65 @@ export function Cart( { cart, handleSetCart, confirmOrder }: CartInterface) {
     }
   }
 
+  function ProductInCart (product: ProductCartInterface){
+    return (
+      <View className={"w-full flex-row items-center rounded-m"}>
+        <Image
+          className="w-12 h-10 rounded-md"
+          source={{                    
+            uri: `http://192.168.0.9:3001/uploads/${product.imagePath}`,
+          }}
+        />
+        <Text className="mx-2 text-xs text-gray-500">{product.quantity}x</Text>
+        
+        <View className={"flex-col justify-between"}>
+          <Text className="font-bold text-sm text-gray-800">{product.name}</Text>
+          <Text className="text-gray-500">{formatCurrency(product.price)}</Text>
+        </View>
+        <View className={"flex-row gap-8 ml-auto"}>
+          <TouchableOpacity
+            onPress={()=>handleAddProduct(product._id)}
+          >
+            <AntDesign name="pluscircleo" size={18} color="#D73035"  />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={()=>handleRemoveProduct(product._id)}
+          >
+            <AntDesign name="minuscircleo" size={18} color="#D73035"  />
+          </TouchableOpacity>
+        </View>
+
+      </View>);
+  }
+
   return (
-    <View className="pt-4 mb-2 max-h-60 border-t-2 border-primary/20">
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        className="mb-4 w-full"
-        ItemSeparatorComponent={Separator}
-        data={cart}
-        keyExtractor={(product) => product._id}
-        renderItem={({item : product})=>{
-          return (
-  
-            <View className={"flex-1 flex-row items-center rounded-m"}>
-              <Image
-                className="w-12 h-10 rounded-md"
-                source={{                    
-                  uri: `http://192.168.0.9:3001/uploads/${product.imagePath}`,
-                }}
-              />
-              <Text className="ml-2 text-xs text-gray-500">{product.quantity}x</Text>
-              <View className={"h-full ml-4 flex-1 flex-col justify-between"}>
-                <Text className="font-bold text-sm text-gray-800">{product.name}</Text>
-                <View className={"flex-row justify-between items-end"}>
-                  <Text className=" text-gray-500">{formatCurrency(product.price)}</Text>
-                  <View className={"flex-row justify-between items-end gap-8"}>
-                    <TouchableOpacity
-                      className={"-top-2 text-red"}
-                      onPress={()=>handleAddProduct(product._id)}
-                    >
-                      <AntDesign name="pluscircleo" size={18} color="#D73035"  />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className={"-top-2 text-red"}
-                      onPress={()=>handleRemoveProduct(product._id)}
-                    >
-                      <AntDesign name="minuscircleo" size={18} color="#D73035"  />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </View>
-          );
-        }}
-      />
-      <View className="m-0 flex-row justify-between">
+    <View className={`pt-4 pb-8 px-2 ${openList ? "h-[75%]" : "max-h-60"} border-t-2 border-primary/20 bg-red-50 ${isAndroid ? "pb-4" : "pb-8"}`}>
+      {
+        !!cart?.length &&
+        <>
+          <TouchableOpacity
+            onPress={()=>{setOpenList(!openList);}}
+            className="items-center justify-center -top-3 -mb-2"
+          >
+            <AntDesign name={`${openList ? "down" : "up"}`} size={18} color="#D73035"  />
+          </TouchableOpacity>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            // contentContainerStyle={openList ? {paddingBottom: cart.length * 25 }  : {paddingBottom: 20}}
+            contentContainerStyle={{paddingBottom: 20}}
+            className={"mb-4 w-full"}
+            ItemSeparatorComponent={Separator}
+            data={cart}
+            keyExtractor={(product) => product._id}
+            renderItem={({item : product})=>{
+              return ProductInCart(product);
+            }}
+            
+          />
+          
+        </>
+      }
+      <View className="flex-row justify-between">
         <View className="flex-col">
           <Text className="text-gray-800">Preço</Text>
           <Text className="font-bold text-gray-800 text-xl">{ formatCurrency(total) }</Text>

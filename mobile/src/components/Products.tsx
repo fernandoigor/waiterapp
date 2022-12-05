@@ -10,155 +10,20 @@ import colors from "tailwindcss/colors";
 import { formatCurrency } from "../utils/formatCurrency";
 import { ProductDetails, ProductDetailsInterface } from "../components/ProductDetails";
 import { ProductCartInterface } from "./Cart";
+import { ProductInterface } from "../types/ProductInterface";
+
 
 interface ProductsInterface {
   tableSelected: string;
   setTableModalVisible: () => void;
   cart: ProductCartInterface[] | null;
   handleSetCart: (el:ProductCartInterface[]) => void;
-}
-export interface ProductInterface {
-    _id: string;
-    name: string;
-    description: string;
-    imagePath: string;
-    price: number;
-    ingredients: any[];
+  products: ProductInterface[];
 }
 
-const products = [
-  {
-    _id: "6372e040f52e37ef85fe2c5e",
-    name: "Pizza quatro queijos",
-    description: "Pizza de quatro queijos com borda tradicional",
-    imagePath: "c2738036-5f74-4c11-b278-3a13b9ce2319-Captura de Tela 2022-10-04 aÌs 09.45.45.png",
-    price: 40,
-    ingredients: [
-      {
-        name: "Mussarela",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c5f",
-      },
-      {
-        name: "Parmesão",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c60",
-      },
-      {
-        name: "Gouda",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c61",
-      },
-      {
-        name: "Brie",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c62",
-      },
-      {
-        name: "Brie",
-        icon: "🧀",
-        _id: "6372e040f52e37ef585fe2c62",
-      },
-      {
-        name: "Brie",
-        icon: "🧀",
-        _id: "6372e040f52e37ef845fe2c62",
-      },
-      {
-        name: "Brie",
-        icon: "🧀",
-        _id: "6372e040f52e37ef852fe2c62",
-      },
-      {
-        name: "Brie",
-        icon: "🧀",
-        _id: "6372e040f52e373ef85fe2c62",
-      },
-      {
-        name: "Ultimo",
-        icon: "🧀",
-        _id: "6372e0410f52e37ef85fe2c62",
-      },
-    ],
-  },
-  {
-    _id: "6372e276a381106c0f854cb3",
-    name: "Coca cola",
-    description: "Coca cola lata",
-    imagePath: "b27ee1d7-30f8-409e-83d0-a7f81d0e3a2b-Captura de Tela 2022-10-28 aÌs 15.50.23.png",
-    price: 7,
-    ingredients: [],
-  },
-  {
-    _id: "6372e276a3811063c0f854cb4",
-    name: "Coca cola Zero",
-    description: "Coca cola lata",
-    imagePath: "1668608507294-coca-cola.png",
-    price: 7,
-    ingredients: [],
-  },
-  {
-    _id: "6372e276a3811026c0f854cb5",
-    name: "Lasanha",
-    description: "Lasanha de carne",
-    imagePath: "1668608507294-coca-cola.png",
-    price: 7,
-    ingredients: [
-      {
-        name: "Mussarela",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c5f",
-      },
-      {
-        name: "Parmesão",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c60",
-      },
-    ],
-  },
-  {
-    _id: "6372e276a3811026c0f854cb6",
-    name: "Fanta",
-    description: "Fanta laranja",
-    imagePath: "1668608507294-coca-cola.png",
-    price: 7,
-    ingredients: [
-      {
-        name: "Mussarela",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c5f",
-      },
-      {
-        name: "Parmesão",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c60",
-      },
-    ],
-  },
-  {
-    _id: "6372e276a3811026c0f854cb7",
-    name: "Guaraná",
-    description: "Guaraná antartica",
-    imagePath: "1668608507294-coca-cola.png",
-    price: 7,
-    ingredients: [
-      {
-        name: "Mussarela",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c5f",
-      },
-      {
-        name: "Parmesão",
-        icon: "🧀",
-        _id: "6372e040f52e37ef85fe2c60",
-      },
-    ],
-  },
-  
-];
 
 
-export function Products({ tableSelected, setTableModalVisible, cart, handleSetCart }: ProductsInterface) {
+export function Products({ tableSelected, setTableModalVisible, cart, handleSetCart, products }: ProductsInterface) {
   const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [productDetailed, setProductDetailed] = useState<ProductDetailsInterface | null>(null);
 
@@ -185,11 +50,79 @@ export function Products({ tableSelected, setTableModalVisible, cart, handleSetC
 
     handleSetCart([...cart]);
   }
+  function productInfo2(product: ProductInterface){
+    return (
+      <>
+        <TouchableOpacity
+          onPress={() => {showDescriptionModalProduct(product);}}
+        >
+          <View className={"flex-1 flex-row items-center rounded-m"}>
+            <Image
+              className="w-28 h-24 rounded-md"
+              source={{                    
+                uri: `http://192.168.0.9:3001/uploads/${product.imagePath}`,
+              }}
+            />
+            <View className={"h-full ml-4 flex-1 flex-col justify-between"}>
+              <Text className="font-bold text-xl text-gray-800">{product.name}</Text>
+              <Text className=" text-gray-800">{product.description}</Text>
+              <View className={"flex-row justify-between items-end"}>
+                <Text className="font-bold text-primary">{formatCurrency(product.price)}</Text>
+                <TouchableOpacity
+                  className={"-top-2 text-red mr-8 "}
+                  onPress={()=>{
+                    tableSelected === "" ? setTableModalVisible() : handleAddProductCart(product);
+                  }}
+                  disabled={tableSelected === ""}
+                >
+                  <AntDesign name="pluscircleo" size={36} color={tableSelected === "" ? colors.gray[300] : "#D73035"}  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </>
+    );
+  }
 
+  function productInfo(product: ProductInterface){
+    return (
+      <View className="">
+        <TouchableOpacity
+          onPress={() => {showDescriptionModalProduct(product);}}
+        >
+          <View className={"flex-row items-center"}>
+            <Image
+              className="w-28 h-24 rounded-md"
+              source={{                    
+                uri: `http://192.168.0.9:3001/uploads/${product.imagePath}`,
+              }}
+            />
+            <View className="h-24 ml-4 mr-8 flex-1 flex-col justify-between">
+              <Text className="font-bold text-xl text-gray-800 max-h-11 truncate">{product.name}</Text>
+              <Text className=" text-gray-800 max-h-12 truncate">{product.description}</Text>
+              <View className={"flex-row justify-between items-end"}>
+                <Text className="font-bold text-primary">{formatCurrency(product.price)}</Text>
+                <TouchableOpacity
+                  className={"-top-2"}
+                  onPress={()=>{
+                    tableSelected === "" ? setTableModalVisible() : handleAddProductCart(product);
+                  }}
+                  disabled={tableSelected === ""}
+                >
+                  <AntDesign name="pluscircleo" size={36} color={tableSelected === "" ? colors.gray[300] : "#D73035"}  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
 
   return (
-    <View className="mb-2 w-full flex-1">
+    <View className="mx-4 mb-0 w-full flex-1 justify-center">
       <Modal
         animationType="fade"
         transparent={false}
@@ -206,45 +139,23 @@ export function Products({ tableSelected, setTableModalVisible, cart, handleSetC
             tableSelected={tableSelected}/>
         </View>
       </Modal>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        className="mt-8 mb-4 w-full"
-        ItemSeparatorComponent={Separator}
-        data={products}
-        keyExtractor={(product) => product._id}
-        renderItem={({item : product})=>{
-          return (
-            <TouchableOpacity
-              onPress={() => {showDescriptionModalProduct(product);}}
-            >
-              <View className={"flex-1 flex-row items-center rounded-m"}>
-                <Image
-                  className="w-28 h-24 rounded-md"
-                  source={{                    
-                    uri: `http://192.168.0.9:3001/uploads/${product.imagePath}`,
-                  }}
-                />
-                <View className={"h-full ml-4 flex-1 flex-col justify-between"}>
-                  <Text className="font-bold text-xl text-gray-800">{product.name}</Text>
-                  <Text className=" text-gray-800">{product.description}</Text>
-                  <View className={"flex-row justify-between items-end"}>
-                    <Text className="font-bold text-primary">{formatCurrency(product.price)}</Text>
-                    <TouchableOpacity
-                      className={"-top-2 text-red"}
-                      onPress={()=>{
-                        tableSelected === "" ? setTableModalVisible() : handleAddProductCart(product);
-                      }}
-                      disabled={tableSelected === ""}
-                    >
-                      <AntDesign name="pluscircleo" size={36} color={tableSelected === "" ? colors.gray[300] : "#D73035"}  />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        }}
-      />
+      {
+        !products.length ?
+          <Image
+            className="self-center mr-8"
+            source={require("../assets/empty-state.png")}
+          />:
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            className="mt-2 mb-1 w-full"
+            ItemSeparatorComponent={Separator}
+            data={products}
+            keyExtractor={(product) => product._id}
+            renderItem={({item : product})=>{
+              return (productInfo(product));
+            }}
+          />
+      }
     </View>
   );
 }

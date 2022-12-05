@@ -1,37 +1,16 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, Platform } from "react-native";
+import { Category } from "../types/Category";
 
-const categories = [
-  {
-    _id: "6372d595f9ebdda354700c8d",
-    name: "Pizza",
-    icon: "🍕",
-  },
-  {
-    _id: "6372d5bff9ebdda354700c90",
-    name: "Bebidas",
-    icon: "🍻",
-  },
-  {
-    _id: "6372d5d2f9ebdda354700c92",
-    name: "Burgers",
-    icon: "🍔",
-  },
-  {
-    _id: "6372d5dcf9ebdda354700c94",
-    name: "Promoções",
-    icon: "🏷",
-  },
-];
+interface CategoriesProps{
+  categories: Category[];
+  selectedCategory: string;
+  selectCategory: (category: string) => void;
+}
 
-export function Categories() {
+export function Categories({ categories, selectedCategory, selectCategory } : CategoriesProps) {
 
-  const [selectedCategory, setSelectedCategory] = useState("");
 
-  function handleSelectCategory(categoryId: string){
-    const category = selectedCategory === categoryId ? "" : categoryId;
-    setSelectedCategory(category);
-  }
   return (
     <View>
       <FlatList
@@ -43,7 +22,7 @@ export function Categories() {
         renderItem={({item : category})=>{
           return (
             <TouchableOpacity
-              onPress={() => {handleSelectCategory(category._id);}}
+              onPress={() => {selectCategory(category._id);}}
               className={"h-32"}
             >
               <View className={`items-center mx-4 py-2 ${(selectedCategory===category._id ? "" : "opacity-40")}`}>
@@ -56,6 +35,12 @@ export function Categories() {
           );
         }}
       />
+      {
+        !categories && 
+        <View className="mt-4 items-center justify-center">
+          <Text className="text-primary font-bold">Nenhuma categoria cadastrada</Text>
+        </View>
+      }
     </View>
   );
 }
