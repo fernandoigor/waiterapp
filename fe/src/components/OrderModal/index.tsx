@@ -5,13 +5,17 @@ import closeIcon from '../../assets/images/close-icon.svg';
 import { Order } from '../../types/Order';
 import { formatCurrency } from '../../utils/formatCurrency';
 
+
 interface OrderModalProps {
   visible: boolean;
   order: Order | null;
   onClose: ()=>void;
+  onCancel: ()=> Promise<void>;
+  onChange: ()=> Promise<void>;
+  isLoading: boolean;
 }
 
-export function OrderModal({ visible, order, onClose }: OrderModalProps ) {
+export function OrderModal({ visible, order, onClose, onCancel, onChange, isLoading }: OrderModalProps ) {
   useEffect(()=>{
     function handleKeyDown(event: KeyboardEvent){
       if(event.key === 'Escape'){
@@ -45,12 +49,12 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps ) {
           <div>
             <span>
               {order.status === 'WAITING' && '⏱'}
-              {order.status === 'IN_PRODUCITON' && '🥘'}
+              {order.status === 'IN_PRODUCTION' && '🥘'}
               {order.status === 'DONE' && '✅'}
             </span>
             <strong>
               {order.status === 'WAITING' && 'Fila de espera'}
-              {order.status === 'IN_PRODUCITON' && 'Preparando...'}
+              {order.status === 'IN_PRODUCTION' && 'Preparando...'}
               {order.status === 'DONE' && 'Pronto'}
             </strong>
           </div>
@@ -87,17 +91,26 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps ) {
         </OrderDetails>
 
         {order.status !== 'DONE' && <Actions>
-          <button type='button' className='primary'>
+          <button type='button'
+            className='primary'
+            onClick={onChange}
+            disabled={isLoading}
+          >
             <span>
               {order.status === 'WAITING' && '🥘'}
-              {order.status === 'IN_PRODUCITON' && '✅'}
+              {order.status === 'IN_PRODUCTION' && '✅'}
             </span>
             <strong>
               {order.status === 'WAITING' && 'Preparando...'}
-              {order.status === 'IN_PRODUCITON' && 'Pronto'}
+              {order.status === 'IN_PRODUCTION' && 'Pronto'}
             </strong>
           </button>
-          <button type='button' className='secondary'>
+          <button
+            type='button'
+            className='secondary'
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             <strong>Cancelar</strong>
           </button>
         </Actions>

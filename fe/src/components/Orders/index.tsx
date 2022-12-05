@@ -1,53 +1,71 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import socketIo from 'socket.io-client';
+
 import { Order } from '../../types/Order';
+import api from '../../utils/api';
 import { OrdersBoard } from '../OrdersBoard';
 import { Container } from './styles';
 
-const orders: Order[] =[
-  {
-    '_id': '63752e0a9f9791f1793b83fd',
-    'table': '123',
-    'status': 'WAITING',
-    'products': [
-      {
-        'product': {
-          'name': 'Quatro quehois',
-          'imagePath': 'b27ee1d7-30f8-409e-83d0-a7f81d0e3a2b-Captura de Tela 2022-10-28 aÌs 15.50.23.png',
-          'price': 20,
-        },
-        'quantity': 2,
-        '_id': '63752e0a9f9791f1793b83fe'
-      },
-      {
-        'product': {
-          'name': 'Calabresa',
-          'imagePath': 'c2738036-5f74-4c11-b278-3a13b9ce2319-Captura de Tela 2022-10-04 aÌs 09.45.45.png',
-          'price': 20,
-        },
-        'quantity': 1,
-        '_id': '63752e0a9f9791f1793b83ff'
-      }
-    ]
-  }
-];
 
 export function Orders() {
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    const socket = socketIo('http://127.0.0.1:3001', {
+      transports: ['websocket']
+    });
+    socket.on('orders@new', (order) =>{
+      setOrders( (prevState) => prevState.concat(order));
+    });
+    socket.on('orders@status', (order) =>{
+      setOrders( (prevState) => prevState.map(prevOrder => prevOrder._id === order._id ? order : prevOrder));
+    });
+    socket.on('orders@cancel', (orderId) =>{
+      setOrders( (prevState) => prevState.filter(prevOrder => prevOrder._id !== orderId));
+    });
+  }, []);
+
+  useEffect (() => {
+    api.get('/orders')
+      .then((response)=>{
+        setOrders(response.data);
+      });
+  }, []);
+
+  function handleCancelOrder(orderId: string){
+    setOrders((prevState) => prevState.filter(order => order._id !== orderId));
+  }
+
+  function handleChangeOrder(orderId: string, status: Order['status']){
+    setOrders((prevState) => prevState.map((order ) =>(
+      order._id === orderId
+        ? { ...order, status}
+        : order
+    )));
+  }
+
   return (
     <Container>
       <OrdersBoard
         icon='⏱'
         title='Fila de espera'
-        orders={orders}
+        orders={orders.filter(order => order.status === 'WAITING')}
+        onCancelOrder={handleCancelOrder}
+        onChangeOrderStatus={handleChangeOrder}
       />
       <OrdersBoard
         icon='🥘'
         title='Preparando...'
-        orders={[]}
+        orders={orders.filter(order => order.status === 'IN_PRODUCTION')}
+        onCancelOrder={handleCancelOrder}
+        onChangeOrderStatus={handleChangeOrder}
       />
       <OrdersBoard
         icon='✅'
         title='Pronto'
-        orders={[]}
+        orders={orders.filter(order => order.status === 'DONE')}
+        onCancelOrder={handleCancelOrder}
+        onChangeOrderStatus={handleChangeOrder}
       />
     </Container>
   );

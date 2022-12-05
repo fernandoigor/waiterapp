@@ -135,6 +135,27 @@ export const Actions = styled.footer`
   flex-direction: column;
   margin-top: 32px;
 
+  button:disabled, button:disabled:hover {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(60deg, rgba(55,55,55,0.1) 45%, rgba(215,20,20,1) 50%, rgba(55,55,55,0.1) 55%);
+
+    animation: load 7s ease infinite;
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    @keyframes load {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 100% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
+    }
+  }
+
   .primary{
     background-color: #333;
     border-radius: 48px;
