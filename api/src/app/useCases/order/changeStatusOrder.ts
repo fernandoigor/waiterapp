@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { io } from '../../../index';
 import { Order } from '../../models/Order';
 
 export async function changeStatusOrder(req: Request,res: Response){
@@ -11,7 +12,10 @@ export async function changeStatusOrder(req: Request,res: Response){
     });
   }
 
-  await Order.findByIdAndUpdate(orderId, { status });
+  const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true});
 
-  res.status(204);
+  const orderDetails = await order?.populate('products.product');
+  io.emit('orders@status', orderDetails);
+
+  res.status(204).json();
 }
